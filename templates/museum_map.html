@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Museum Map - PixelPast</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--body);
+        }
+        
+        .header {
+            background: linear-gradient(to right, #000000, #9BD3C4);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 80px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header h1 i {
+            color: var(--btn-bg);
+            margin-right: 0.5rem;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 20px;
+            border-radius: 10px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-weight: bold;
+            color: var(--header-text);
+        }
+        
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: var(--btn-bg);
+        }
+        
+        .stats {
+            background: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(to right, var(--btn-bg), var(--btn-hover));
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+        }
+        
+        .stat-card p {
+            margin: 0;
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        #map {
+            height: 600px;
+            width: calc(100% - 40px);
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .museum-popup {
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .museum-popup h3 {
+            margin: 0 0 10px 0;
+            color: var(--header-text);
+            font-size: 1.2em;
+        }
+        
+        .museum-popup p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .museum-popup .type {
+            background: var(--btn-bg);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--header-text);
+            text-decoration: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-group {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+                margin: 10px;
+            }
+            
+            #map {
+                margin: 10px;
+                height: 400px;
+                width: calc(100% - 20px);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .back-button {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin: 20px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">← Back to Home</a>
+    
+    <div class="header">
+        <h1><i class="fas fa-map-marker-alt"></i> Museum Map</h1>
+        <p>Explore museums across India with interactive locations and detailed information</p>
+    </div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="typeFilter">Filter by Type:</label>
+            <select id="typeFilter">
+                <option value="">All Types</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="stateFilter">Filter by State:</label>
+            <select id="stateFilter">
+                <option value="">All States</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="searchInput">Search Museums:</label>
+            <input type="text" id="searchInput" placeholder="Enter museum name, city, or type...">
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <h3>Total Museums</h3>
+            <p id="totalMuseums">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>States Covered</h3>
+            <p id="totalStates">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Museum Types</h3>
+            <p id="totalTypes">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Museums with Coordinates</h3>
+            <p id="museumsWithCoords">0</p>
+        </div>
+    </div>
+    
+    <div id="map"></div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let markers = [];
+        let allMuseums = [];
+        let filteredMuseums = [];
+        
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([23.5937, 78.9629], 5); // Center of India
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            loadMuseums();
+        }
+        
+        // Load museum data
+        async function loadMuseums() {
+            try {
+                const response = await fetch('/api/museum-locations');
+                const data = await response.json();
+                
+                allMuseums = data;
+                filteredMuseums = [...allMuseums];
+                
+                // Populate filters
+                populateFilters();
+                
+                // Display museums
+                displayMuseums();
+                
+                // Update stats
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error loading museums:', error);
+            }
+        }
+        
+        // Populate filter dropdowns
+        function populateFilters() {
+            const types = [...new Set(allMuseums.map(m => m.Type).filter(t => t))];
+            const states = [...new Set(allMuseums.map(m => m.State).filter(s => s))];
+            
+            const typeFilter = document.getElementById('typeFilter');
+            const stateFilter = document.getElementById('stateFilter');
+            
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+            
+            states.forEach(state => {
+                const option = document.createElement('option');
+                option.value = state;
+                option.textContent = state;
+                stateFilter.appendChild(option);
+            });
+        }
+        
+        // Display museums on map
+        function displayMuseums() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            filteredMuseums.forEach(museum => {
+                if (museum.Latitude && museum.Longitude) {
+                    const marker = L.marker([museum.Latitude, museum.Longitude])
+                        .bindPopup(createPopupContent(museum))
+                        .addTo(map);
+                    
+                    markers.push(marker);
+                }
+            });
+        }
+        
+        // Create popup content
+        function createPopupContent(museum) {
+            return `
+                <div class="museum-popup">
+                    <h3>${museum.Name}</h3>
+                    <p><strong>City:</strong> ${museum.City || 'N/A'}</p>
+                    <p><strong>State:</strong> ${museum.State || 'N/A'}</p>
+                    <p><strong>Type:</strong> <span class="type">${museum.Type || 'N/A'}</span></p>
+                    ${museum.Established ? `<p><strong>Established:</strong> ${museum.Established}</p>` : ''}
+                </div>
+            `;
+        }
+        
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalMuseums').textContent = allMuseums.length;
+            document.getElementById('totalStates').textContent = new Set(allMuseums.map(m => m.State).filter(s => s)).size;
+            document.getElementById('totalTypes').textContent = new Set(allMuseums.map(m => m.Type).filter(t => t)).size;
+            document.getElementById('museumsWithCoords').textContent = allMuseums.filter(m => m.Latitude && m.Longitude).length;
+        }
+        
+        // Filter museums
+        function filterMuseums() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            const stateFilter = document.getElementById('stateFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredMuseums = allMuseums.filter(museum => {
+                const matchesType = !typeFilter || museum.Type === typeFilter;
+                const matchesState = !stateFilter || museum.State === stateFilter;
+                const matchesSearch = !searchInput || 
+                    museum.Name.toLowerCase().includes(searchInput) ||
+                    museum.City.toLowerCase().includes(searchInput) ||
+                    museum.Type.toLowerCase().includes(searchInput);
+                
+                return matchesType && matchesState && matchesSearch;
+            });
+            
+            displayMuseums();
+        }
+        
+        // Event listeners
+        document.getElementById('typeFilter').addEventListener('change', filterMuseums);
+        document.getElementById('stateFilter').addEventListener('change', filterMuseums);
+        document.getElementById('searchInput').addEventListener('input', filterMuseums);
+        
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>

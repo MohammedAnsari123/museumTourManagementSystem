@@ -1,0 +1,6 @@
+TicketID,Museum,Date,Time,People,TourType,VisitorName,VisitorEmail,VisitorPhone,VisitorAge,SpecialRequests,EmergencyContact,MuseumType,Attended,Rating,Review
+13bba8bd,Salar Jung Museum,2025-08-20,14:00,2,group,abc,ansari@mail.com,1234567890,teen,hi hello,,Art,No,,
+2d5c9d8b,Victoria Memorial,2025-08-20,12:00,1,self-guided,Ansari,ansarimd@mail.com,9876543210,teen,second entry,8975642310,Art/History,No,,
+9472ba50,Zoological Museum,2025-08-23,14:00,1,self-guided,zoologist,zoologist@gmail.com,9877896541,teen,zoologinst,9877896543,Zoology,No,,
+75d6fdee,Ram Gauri Sangrahalay,2025-08-21,14:00,3,self-guided,Ram Gauri,RamGauri@gmail.com,9877899871,teen,Ram Gauri,3210321065,Anthropology,No,,
+4bdf028a,Kerala Spices Museum,2025-08-20,12:00,3,self-guided,kerala Spices,keralaSpices@gmail.com,9877896532,teen,kerala Spices,3210654098,Agricultural,No,,

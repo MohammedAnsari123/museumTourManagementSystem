@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixelPast Museum - Visitor Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='VisitersHomePage.css') }}" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+
+<body class="light-mode">
+
+  <!-- Navigation Header -->
+  <header class="visitor-nav">
+    <div class="nav-logo">
+      <h2><i class="fas fa-museum"></i> PixelPast Museum</h2>
+    </div>
+    <nav class="nav-menu">
+      <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+      <a href="{{ url_for('gallery') }}"><i class="fas fa-images"></i> Gallery</a>
+      <a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="#bookings"><i class="fas fa-calendar-check"></i> My Bookings</a>
+      <a href="#exhibitions"><i class="fas fa-calendar-alt"></i> Exhibitions</a>
+    </nav>
+    <div class="nav-auth">
+      {% if user %}
+      <span class="user-welcome">Welcome, {{ user.username }}!</span>
+      <a href="{{ url_for('visitor_logout') }}" class="auth-btn logout-btn" style="background: #9BD3C4;
+    color: black;
+    display: flex;
+    width: 130px;
+    border-radius: 5px;
+    list-style: none;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    font-weight: 700;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+      {% else %}
+      <a href="{{ url_for('visitor_login') }}" class="auth-btn login-btn">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </a>
+      <a href="{{ url_for('visitor_register') }}" class="auth-btn register-btn">
+        <i class="fas fa-user-plus"></i> Register
+      </a>
+      {% endif %}
+    </div>
+  </header>
+
+  <button id="toggle-mode" class="theme-toggle">🌙</button>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero-section">
+    <video autoplay muted loop id="bg-video">
+      <source src="{{ url_for('static', filename='Visiter/assets/videos/background.mp4') }}" type="video/mp4">
+    </video>
+    <div class="hero-content">
+      <h1>Welcome to PixelPast</h1>
+      <p>Explore history, science & art through time</p>
+      <div class="hero-buttons">
+        <button onclick="scrollToSection('dashboard')">Get Started</button>
+        <a href="{{ url_for('gallery') }}" class="btn" style="background: #9BD3C4;
+    color: black;
+    display: flex;
+    width: 130px;
+    border-radius: 5px;
+    list-style: none;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    font-weight: 700;">View Gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard Overview Section -->
+  <section id="dashboard" class="dashboard-overview">
+    <div class="container">
+      <h2><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h2>
+
+      {% if user %}
+      <div class="welcome-message">
+        <h3>Welcome back, {{ user.username }}!</h3>
+        <p>Here's your personalized museum dashboard.</p>
+      </div>
+      {% endif %}
+
+      <!-- Quick Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fas fa-calendar-check"></i>
+          <h3 id="totalBookings">0</h3>
+          <p>Total Bookings</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-museum"></i>
+          <h3 id="visitedMuseums">0</h3>
+          <p>Museums Visited</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-star"></i>
+          <h3 id="avgRating">0.0</h3>
+          <p>Average Rating</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-clock"></i>
+          <h3 id="upcomingTours">0</h3>
+          <p>Upcoming Tours</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+        <div class="action-buttons">
+          <a href="{{ url_for('gallery') }}" class="action-btn">
+            <i class="fas fa-search"></i>
+            <span>Browse Museums</span>
+          </a>
+          <button onclick="scrollToSection('booking')" class="action-btn">
+            <i class="fas fa-calendar-plus"></i>
+            <span>Book New Tour</span>
+          </button>
+          <button onclick="scrollToSection('history')" class="action-btn">
+            <i class="fas fa-history"></i>
+            <span>View History</span>
+          </button>
+          <button onclick="scrollToSection('recommendations')" class="action-btn">
+            <i class="fas fa-lightbulb"></i>
+            <span>Get Recommendations</span>
+          </button>
+          <a href="{{ url_for('chatbot_page') }}" class="action-btn">
+            <i class="fas fa-robot"></i>
+            <span>Museum Chatbot</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Bookings Section -->
+  <section id="bookings" class="recent-bookings">
+    <div class="container">
+      <h2><i class="fas fa-calendar-check"></i> Recent Bookings</h2>
+      <div class="bookings-grid" id="recentBookings">
+        <!-- Bookings will be loaded dynamically -->
+      </div>
+      <div class="no-bookings" id="noBookings" style="display: none;">
+        <i class="fas fa-calendar-times"></i>
+        <h3>No Bookings Yet</h3>
+        <p>Start your museum journey by booking your first tour!</p>
+        <button onclick="scrollToSection('booking')" class="cta-btn">Book Your First Tour</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="containers">
+      <h2>Museum Recommendation</h2>
+      <input type="text" id="searchInput" placeholder="Enter museum name, city or type" style="color: black;">
+      <button class="buttonss" onclick="getRecommendations()">Search</button>
+
+      <div id="result"></div>
+    </div>
+  </section>
+
+  <!-- Booking Section -->
+  <section id="booking" class="section">
+    <div class="container">
+      <h2><i class="fas fa-calendar-plus"></i> Book Your Museum Tour</h2>
+
+      <!-- Museum Search Section -->
+      <div class="museum-search-section">
+        <h3><i class="fas fa-search"></i> Find Your Museum</h3>
+        <div class="search-container">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="museumSearchInput" placeholder="Search museums by name, city, or type...">
+          </div>
+          <div class="search-filters">
+            <select id="typeFilter">
+              <option value="">All Types</option>
+              <option value="Art">Art</option>
+              <option value="History">History</option>
+              <option value="Science">Science</option>
+              <option value="Natural">Natural</option>
+              <option value="Cultural">Cultural</option>
+              <option value="General">General</option>
+              <option value="Archaeology">Archaeology</option>
+              <option value="Anthropology">Anthropology</option>
+              <option value="Military">Military</option>
+              <option value="Maritime">Maritime</option>
+            </select>
+            <select id="cityFilter">
+              <option value="">All Cities</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Jaipur">Jaipur</option>
+              <option value="Varanasi">Varanasi</option>
+              <option value="Patna">Patna</option>
+              <option value="Bhopal">Bhopal</option>
+            </select>
+            <button id="resetSearch" class="reset-btn">
+              <i class="fas fa-undo"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Results Dropdown -->
+        <div class="search-results" id="searchResults" style="display: none;">
+          <div class="results-header">
+            <h4>Found Museums</h4>
+            <span class="results-count" id="resultsCount">0 results</span>
+          </div>
+          <div class="results-list" id="resultsList">
+            <!-- Search results will be populated here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="booking-form-container">
+        <form id="bookingForm" class="booking-form">
+          <div class="form-group">
+            <label for="museumSelect"><i class="fas fa-museum"></i> Selected Museum</label>
+            <select id="museumSelect" required>
+              <option value="">Choose a museum from search results...</option>
+            </select>
+            <small class="form-help">Use the search above to find and select your preferred museum</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="visitDate"><i class="fas fa-calendar"></i> Visit Date</label>
+              <input type="date" id="visitDate" required min="">
+            </div>
+            <div class="form-group">
+              <label for="visitTime"><i class="fas fa-clock"></i> Visit Time</label>
+              <select id="visitTime" required>
+                <option value="">Select time...</option>
+                <option value="09:00">9:00 AM</option>
+                <option value="10:00">10:00 AM</option>
+                <option value="11:00">11:00 AM</option>
+                <option value="12:00">12:00 PM</option>
+                <option value="14:00">2:00 PM</option>
+                <option value="15:00">3:00 PM</option>
+                <option value="16:00">4:00 PM</option>
+                <option value="17:00">5:00 PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numPeople"><i class="fas fa-users"></i> Number of People</label>
+              <input type="number" id="numPeople" min="1" max="20" value="1" required>
+              <small class="form-help">Maximum 20 people per booking</small>
+            </div>
+            <div class="form-group">
+              <label for="tourType"><i class="fas fa-route"></i> Tour Type</label>
+              <select id="tourType" required>
+                <option value="">Select tour type...</option>
+                <option value="guided">Guided Tour (₹500/person)</option>
+                <option value="self-guided">Self-Guided Tour (₹200/person)</option>
+                <option value="virtual">Virtual Tour (₹100/person)</option>
+                <option value="group">Group Tour (₹300/person, min 5 people)</option>
+                <option value="educational">Educational Tour (₹400/person)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="visitorName"><i class="fas fa-user"></i> Primary Visitor Name</label>
+              <input type="text" id="visitorName" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+              <label for="visitorEmail"><i class="fas fa-envelope"></i> Email Address</label>
+              <input type="email" id="visitorEmail" placeholder="Enter your email" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="visitorPhone"><i class="fas fa-phone"></i> Phone Number</label>
+              <input type="tel" id="visitorPhone" placeholder="Enter your phone number" required>
+            </div>
+            <div class="form-group">
+              <label for="visitorAge"><i class="fas fa-birthday-cake"></i> Age Group</label>
+              <select id="visitorAge" required>
+                <option value="">Select age group...</option>
+                <option value="child">Child (0-12 years)</option>
+                <option value="teen">Teen (13-17 years)</option>
+                <option value="adult">Adult (18-59 years)</option>
+                <option value="senior">Senior (60+ years)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="specialRequests"><i class="fas fa-comment"></i> Special Requests & Accessibility</label>
+            <textarea id="specialRequests" rows="3"
+              placeholder="Any special requirements, accessibility needs, or requests..."></textarea>
+            <small class="form-help">Let us know if you need wheelchair access, sign language interpreter, or other
+              accommodations</small>
+          </div>
+
+          <div class="form-group">
+            <label for="emergencyContact"><i class="fas fa-exclamation-triangle"></i> Emergency Contact</label>
+            <input type="text" id="emergencyContact" placeholder="Name and phone number of emergency contact">
+            <small class="form-help">Optional but recommended for group bookings</small>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="termsAccepted" required>
+              <span class="checkmark"></span>
+              I agree to the <a href="#" class="terms-link">Terms & Conditions</a> and <a href="#"
+                class="terms-link">Privacy Policy</a>
+            </label>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-check"></i> Confirm Booking
+          </button>
+        </form>
+
+        <div class="booking-summary">
+          <h3><i class="fas fa-receipt"></i> Booking Summary</h3>
+          <div class="summary-item">
+            <span>Museum:</span>
+            <span id="summaryMuseum">-</span>
+          </div>
+          <div class="summary-item">
+            <span>Location:</span>
+            <span id="summaryLocation">-</span>
+          </div>
+          <div class="summary-item">
+            <span>Date:</span>
+            <span id="summaryDate">-</span>
+          </div>
+          <div class="summary-item">
+            <span>Time:</span>
+            <span id="summaryTime">-</span>
+          </div>
+          <div class="summary-item">
+            <span>People:</span>
+            <span id="summaryPeople">-</span>
+          </div>
+          <div class="summary-item">
+            <span>Tour Type:</span>
+            <span id="summaryTourType">-</span>
+          </div>
+          <div class="summary-item">
+            <span>Visitor:</span>
+            <span id="summaryVisitor">-</span>
+          </div>
+          <div class="summary-item">
+            <span>Contact:</span>
+            <span id="summaryContact">-</span>
+          </div>
+          <div class="summary-total">
+            <span>Total Amount:</span>
+            <span id="summaryTotal">₹0</span>
+          </div>
+          <div class="summary-note">
+            <small>* Prices may vary based on special exhibitions or events</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking History Section -->
+  <section id="history" class="section">
+    <div class="container">
+      <h2><i class="fas fa-history"></i> Booking History</h2>
+      <div class="history-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+        <button class="filter-btn" data-filter="cancelled">Cancelled</button>
+      </div>
+      <div class="history-table-container">
+        <table id="history-table">
+          <thead>
+            <tr>
+              <th>Museum</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Rating</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- History will be loaded dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- My Ratings Section -->
+  <section id="my-ratings" class="section">
+    <div class="container">
+      <h2><i class="fas fa-star"></i> My Ratings</h2>
+      <div id="ratingsList" class="bookings-grid">
+        <!-- Rated bookings will be loaded dynamically -->
+      </div>
+      <div id="noRatings" class="no-bookings" style="display: none;">
+        <i class="fas fa-star-half-alt"></i>
+        <h3>No Ratings Yet</h3>
+        <p>Complete a visit and leave a review to see it here.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Exhibits Section -->
+  <section id="popular" class="section">
+    <div class="container">
+      <h2><i class="fas fa-fire"></i> Popular Exhibits</h2>
+      <div class="exhibits-container" id="popular-container">
+        <!-- Popular exhibits will be loaded dynamically -->
+      </div>
+      <div class="pagination" id="exhibits-nav"></div>
+    </div>
+  </section>
+
+  <!-- Exhibitions Section -->
+  <section id="exhibitions" class="section">
+    <div class="container">
+      <h2><i class="fas fa-calendar-alt"></i> Current Exhibitions</h2>
+      <div class="exhibits-container" id="exhibits-container">
+        <!-- Exhibitions will be loaded dynamically -->
+      </div>
+      <div class="pagination" id="exhibits-nav"></div>
+    </div>
+  </section>
+
+  <!-- AI Recommendations Section -->
+  <section id="recommendations" class="section">
+    <div class="container">
+
+      <!-- <h2><i class="fas fa-robot"></i> AI-Powered Recommendations</h2>
+      <div class="recommendation-section">
+        <h3>Based on Your Interests</h3>
+        <div class="recommendation-list" id="aiRecommendations">
+          AI recommendations will be loaded dynamically
+        </div>
+      </div> -->
+
+      <div class="recommendation-section">
+        <h3>Trending This Week</h3>
+        <div class="trending-museums">
+          <div class="trending-card">
+            <img src="{{ url_for('static', filename='images/img1.jpg') }}" alt="Trending Museum">
+            <div class="trending-content">
+              <h4>Modern Art Museum</h4>
+              <p>Special exhibition: Contemporary Masters</p>
+              <div class="trending-stats">
+                <span><i class="fas fa-eye"></i> 2.5k views</span>
+                <span><i class="fas fa-star"></i> 4.8</span>
+              </div>
+            </div>
+          </div>
+          <div class="trending-card">
+            <img src="{{ url_for('static', filename='images/img2.jpg') }}" alt="Trending Museum">
+            <div class="trending-content">
+              <h4>Classical Museum</h4>
+              <p>New collection: Ancient Civilizations</p>
+              <div class="trending-stats">
+                <span><i class="fas fa-eye"></i> 1.8k views</span>
+                <span><i class="fas fa-star"></i> 4.6</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+
+      <div class="museum-header">
+        <h2><i class="fas fa-map-marked-alt"></i> Personalized Museum Recommendations</h2>
+      </div>
+
+      <div class="museum-map">
+        <div id="map"></div>
+      </div>
+
+      <div class="museum-list-container">
+        <h3><i class="fas fa-list"></i> Recommended for You</h3>
+        <div class="museum-list" id="museumList">
+          <!-- Museums will be populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cardes" style="background-color: #9BD3C4;">
+
+    <div class="cards" style="max-width: 95vw; margin: auto; padding: 20px;">
+
+      <section class="card" style="background-color: #F3F3F3;">
+        <h2>Personalized Museum Suggestions</h2>
+        <div class="row">
+          <input id="interests" placeholder="e.g., Art, History, Science" style="color: black;" />
+          <button id="btnPersonalized">Get Suggestions</button>
+        </div>
+        <div id="personalizedResults" class="grid"></div>
+      </section>
+
+      <!-- Popular -->
+      <section class="card" style="background-color: #F3F3F3; ">
+        <h2>Popular Exhibits</h2>
+        <div id="popularResults" class="grid" style="color: black;"></div>
+      </section>
+
+      <!-- Nearby -->
+      <section class="card" style="background-color: #F3F3F3;">
+        <h2>Nearby Museums (via Geolocation)</h2>
+        <div class="row">
+          <input id="radius" type="number" value="25" min="1" max="200" style="color: black;" />
+          <span class="muted">km</span>
+          <button id="btnNearby">Use My Location</button>
+        </div>
+      
+        <!-- Exhibition Modal -->
+        <div id="exhibitModal" class="modal">
+          <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <div id="modalContent"></div>
+          </div>
+        </div>
+        <div id="nearbyResults" class="grid"></div>
+      </section>
+
+    
+        </div>
+      </div>
+    
+      <!-- Exhibition Modal -->
+      <div id="exhibitModal" class="modal">
+        <div class="modal-content">
+          <span id="closeModal" class="close">&times;</span>
+          <div id="modalContent"></div>
+        </div>
+      </div>
+
+  <!-- Foreign Visitors Analytics Section -->
+  <section id="foreign-visitors" class="section">
+    <div class="container">
+      <h2><i class="fas fa-globe"></i> Foreign Visitors Analytics</h2>
+
+      <!-- Chart Controls -->
+      <div class="chart-controls">
+        <button class="chart-btn active" data-chart="yearly">Yearly Overview</button>
+        <button class="chart-btn" data-chart="district">Top Districts</button>
+        <button class="chart-btn" data-chart="monthly">Monthly Trends</button>
+      </div>
+
+      <!-- Chart Container -->
+      <div class="chart-container">
+        <canvas id="foreignChart" width="800" height="400"></canvas>
+      </div>
+
+      <!-- Chart Legend -->
+      <div class="chart-legend" id="chartLegend">
+        <!-- Legend will be populated dynamically -->
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="stats-summary">
+        <div class="summary-card">
+          <i class="fas fa-users"></i>
+          <h3 id="totalForeignVisitors">-</h3>
+          <p>Total Foreign Visitors</p>
+        </div>
+        <div class="summary-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3 id="topDistrict">-</h3>
+          <p>Top District</p>
+        </div>
+        <div class="summary-card">
+          <i class="fas fa-chart-line"></i>
+          <h3 id="growthRate">-</h3>
+          <p>Growth Rate</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Foreign Visitors Chart Script -->
+  <script>
+    let foreignChart = null;
+    let currentChartType = 'yearly';
+
+    // Initialize foreign visitors chart
+    function initForeignVisitorsChart() {
+      console.log('Initializing foreign visitors chart...');
+
+      const canvas = document.getElementById('foreignChart');
+      if (!canvas) {
+        console.error('Chart canvas not found!');
+        return;
+      }
+
+      console.log('Canvas found:', canvas);
+      const ctx = canvas.getContext('2d');
+      console.log('Canvas context:', ctx);
+
+      // Load yearly data by default
+      loadYearlyData();
+
+      // Add event listeners for chart controls
+      document.querySelectorAll('.chart-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          // Remove active class from all buttons
+          document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+          // Add active class to clicked button
+          e.target.classList.add('active');
+
+          const chartType = e.target.dataset.chart;
+          currentChartType = chartType;
+
+          switch (chartType) {
+            case 'yearly':
+              loadYearlyData();
+              break;
+            case 'district':
+              loadDistrictData();
+              break;
+            case 'monthly':
+              loadMonthlyData();
+              break;
+          }
+        });
+      });
+    }
+
+    // Load yearly foreign visitors data
+    function loadYearlyData() {
+      console.log('Loading yearly data...');
+      fetch('/api/foreign-visitors')
+        .then(response => {
+          console.log('Response status:', response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log('Yearly data received:', data);
+
+          if (data.error) {
+            console.error('Error loading yearly data:', data.error);
+            return;
+          }
+
+          const years = Object.keys(data).sort();
+          const visitors = years.map(year => data[year]);
+          console.log('Processed data - Years:', years, 'Visitors:', visitors);
+
+          updateChart(years, visitors, 'Yearly Foreign Visitors', 'line');
+          updateSummaryStats(data);
+        })
+        .catch(error => {
+          console.error('Error loading yearly data:', error);
+        });
+    }
+
+    // Load district data
+    function loadDistrictData() {
+      fetch('/api/foreign-visitors-by-district')
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            console.error('Error loading district data:', data.error);
+            return;
+          }
+
+          const districts = data.map(item => item.District);
+          const visitors = data.map(item => item.Visitors);
+
+          updateChart(districts, visitors, 'Top Districts by Foreign Visitors', 'bar');
+          updateDistrictSummary(data);
+        })
+        .catch(error => {
+          console.error('Error loading district data:', error);
+        });
+    }
+
+    // Load monthly data (aggregated across years)
+    function loadMonthlyData() {
+      fetch('/api/foreign-visitors-monthly')
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            console.error('Error loading monthly data:', data.error);
+            return;
+          }
+
+          const months = data.map(item => item.Month);
+          const visitors = data.map(item => item.Visitors);
+
+          updateChart(months, visitors, 'Monthly Foreign Visitors Trend', 'line');
+          updateMonthlySummary(data);
+        })
+        .catch(error => {
+          console.error('Error loading monthly data:', error);
+        });
+    }
+
+    // Update chart with new data
+    function updateChart(labels, data, title, type = 'line') {
+      console.log('Updating chart with:', { labels, data, title, type });
+
+      if (foreignChart) {
+        console.log('Destroying existing chart');
+        foreignChart.destroy();
+      }
+
+      const canvas = document.getElementById('foreignChart');
+      if (!canvas) {
+        console.error('Canvas not found in updateChart!');
+        return;
+      }
+
+      const ctx = canvas.getContext('2d');
+      console.log('Canvas context in updateChart:', ctx);
+
+      const chartData = {
+        labels: labels,
+        datasets: [{
+          label: 'Foreign Visitors',
+          data: data,
+          backgroundColor: type === 'bar' ? 'rgba(54, 162, 235, 0.8)' : 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 2,
+          fill: type === 'line',
+          tension: 0.4
+        }]
+      };
+
+      const config = {
+        type: type,
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: title,
+              font: {
+                size: 16,
+                weight: 'bold'
+              }
+            },
+            legend: {
+              display: true,
+              position: 'top'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Number of Visitors'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: type === 'yearly' ? 'Year' : type === 'district' ? 'District' : 'Month'
+              }
+            }
+          }
+        }
+      };
+
+      console.log('Creating new chart with config:', config);
+      try {
+        foreignChart = new Chart(ctx, config);
+        console.log('Chart created successfully:', foreignChart);
+      } catch (error) {
+        console.error('Error creating chart:', error);
+      }
+    }
+
+    // Update summary statistics
+    function updateSummaryStats(data) {
+      const years = Object.keys(data).sort();
+      const visitors = years.map(year => data[year]);
+
+      const totalVisitors = visitors.reduce((sum, val) => sum + val, 0);
+      const growthRate = years.length > 1 ?
+        ((visitors[visitors.length - 1] - visitors[0]) / visitors[0] * 100).toFixed(1) : 0;
+
+      document.getElementById('totalForeignVisitors').textContent = totalVisitors.toLocaleString();
+      document.getElementById('growthRate').textContent = `${growthRate}%`;
+      document.getElementById('topDistrict').textContent = 'N/A';
+    }
+
+    function updateDistrictSummary(data) {
+      if (data.length > 0) {
+        const totalVisitors = data.reduce((sum, item) => sum + item.Visitors, 0);
+        const topDistrict = data[0].District;
+
+        document.getElementById('totalForeignVisitors').textContent = totalVisitors.toLocaleString();
+        document.getElementById('topDistrict').textContent = topDistrict;
+        document.getElementById('growthRate').textContent = 'N/A';
+      }
+    }
+
+    function updateMonthlySummary(data) {
+      if (data.length > 0) {
+        const totalVisitors = data.reduce((sum, item) => sum + item.Visitors, 0);
+        const peakMonth = data.reduce((max, item) => item.Visitors > max.Visitors ? item : max);
+
+        document.getElementById('totalForeignVisitors').textContent = totalVisitors.toLocaleString();
+        document.getElementById('topDistrict').textContent = peakMonth.Month;
+        document.getElementById('growthRate').textContent = 'N/A';
+      }
+    }
+
+    // Initialize chart when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log('DOM Content Loaded - Initializing chart...');
+      initForeignVisitorsChart();
+    });
+  </script>
+
+  <script>
+    async function getRecommendations() {
+      const input = document.getElementById('searchInput').value;
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = 'Loading...';
+
+      const response = await fetch('/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: input })
+      });
+
+      const data = await response.json();
+
+      if (data.length === 0) {
+        resultDiv.innerHTML = `<p style="color:red;">No museums found for "<strong>${input}</strong>"</p>`;
+      } else {
+        let list = '<ul>';
+        data.forEach(m => {
+          list += `<li><strong>${m.Name}</strong> — ${m.City} (${m.Type})</li>`;
+        });
+        list += '</ul>';
+        resultDiv.innerHTML = list;
+      }
+    }
+  </script>
+
+
+
+  <script>
+    // Initialize map
+    const map = L.map('map').setView([20.5937, 78.9629], 5); // Centered in India
+
+    // Add OSM tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Load museum locations from Flask API
+    fetch('/api/museum-locations')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(museum => {
+          const lat = parseFloat(museum.Latitude);
+          const lon = parseFloat(museum.Longitude);
+          if (!isNaN(lat) && !isNaN(lon)) {
+            L.marker([lat, lon])
+              .addTo(map)
+              .bindPopup(`<b>${museum.Name}</b><br>${museum.City}`);
+          }
+        });
+      })
+      .catch(err => console.error("Failed to load museums:", err));
+  </script>
+
+  <script src="{{ url_for('static', filename='VisitersHomePage.js') }}"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>

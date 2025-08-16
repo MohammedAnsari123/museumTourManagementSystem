@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}" />
+</head>
+
+<body>
+  <header class="admin-header">
+    <div class="header-content">
+      <h1>Admin Dashboard</h1>
+      <p>Manage your museum operations efficiently</p>
+    </div>
+    <div class="admin-nav">
+      <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+      <a href="{{ url_for('gallery') }}" class="nav-link">Gallery</a>
+      <div class="auth-buttons">
+        <button class="auth-btn login-btn" onclick="window.location.href='{{ url_for('admin_login') }}'">Admin Login</button>
+        <button class="auth-btn logout-btn" onclick="window.location.href='{{ url_for('admin_logout') }}'">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="dashboard-header">
+      <h2>Quick Actions</h2>
+      <p>Select an option to manage your museum</p>
+    </div>
+    
+    <div class="admin-grid">
+      <div class="admin-card" onclick="go('{{ url_for('admin_exhibits') }}')">
+        <div class="card-icon">🏛️</div>
+        <h3>Manage Exhibits</h3>
+        <p>Add, edit, and organize museum exhibits</p>
+      </div>
+      
+      
+      <div class="admin-card" onclick="go('{{ url_for('admin_analytics_page') }}')">
+        <div class="card-icon">📊</div>
+        <h3>View Analytics</h3>
+        <p>Monitor visitor statistics and trends</p>
+      </div>
+      
+      <div class="admin-card" onclick="go('{{ url_for('admin_ratings_page') }}')">
+        <div class="card-icon">⭐</div>
+        <h3>Manage Ratings</h3>
+        <p>Review and manage visitor ratings</p>
+      </div>
+      
+      
+      <div class="admin-card" onclick="go('{{ url_for('admin_passkey') }}')">
+        <div class="card-icon">🔑</div>
+        <h3>Manage Pass Keys</h3>
+        <p>Create and manage admin pass keys</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function go(path) {
+      window.location.href = path;
+    }
+  </script>
+</body>
+
+</html>

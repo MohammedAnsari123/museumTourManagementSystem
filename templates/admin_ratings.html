@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Ratings</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}" />
+  <style>
+    .ratings-container { max-width: 1100px; margin: 30px auto; padding: 0 16px; }
+    .ratings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .ratings-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .rating-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fff; }
+    .rating-top { display: flex; align-items: center; justify-content: space-between; }
+    .stars { color: #f59e0b; font-size: 18px; }
+    .meta { color: #6b7280; font-size: 12px; display: flex; gap: 10px; margin-top: 4px; }
+    .review { margin-top: 6px; font-size: 14px; }
+    .pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; margin-top: 16px; }
+    .pager button { padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; cursor: pointer; }
+    .search-row { display: flex; gap: 8px; }
+    .search-row input { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; }
+    @media (min-width: 720px) { .ratings-list { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="admin-header">
+    <div class="header-content">
+      <h1>Ratings</h1>
+      <p>All visitor ratings across bookings</p>
+    </div>
+    <div class="admin-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="nav-link">Dashboard</a>
+      <a href="{{ url_for('admin_logout') }}" class="nav-link">Logout</a>
+    </div>
+  </header>
+
+  <main class="ratings-container">
+    <div class="ratings-header">
+      <div class="search-row">
+        <input id="qMuseum" placeholder="Filter by museum..." />
+        <input id="qEmail" placeholder="Filter by email..." />
+        <input id="qTicket" placeholder="Filter by ticket id..." />
+      </div>
+      <div>
+        <select id="perPage">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="ratingsList" class="ratings-list"></div>
+    <div class="pager">
+      <button id="prevBtn">Prev</button>
+      <span id="pageInfo"></span>
+      <button id="nextBtn">Next</button>
+    </div>
+  </main>
+
+  <script>
+    let page = 1;
+    let totalPages = 1;
+
+    async function fetchRatings() {
+      const perPage = document.getElementById('perPage').value;
+      const res = await fetch(`/api/admin/ratings?page=${page}&per_page=${perPage}`);
+      const data = await res.json();
+      const items = Array.isArray(data) ? data : (data.items || []);
+      totalPages = data.total_pages || 1;
+
+      // client-side basic filters
+      const qMuseum = document.getElementById('qMuseum').value.trim().toLowerCase();
+      const qEmail = document.getElementById('qEmail').value.trim().toLowerCase();
+      const qTicket = document.getElementById('qTicket').value.trim().toLowerCase();
+
+      const filtered = items.filter(r => {
+        const m = (r.Museum || '').toLowerCase();
+        const e = (r.VisitorEmail || '').toLowerCase();
+        const t = (r.TicketID || '').toLowerCase();
+        return (!qMuseum || m.includes(qMuseum)) && (!qEmail || e.includes(qEmail)) && (!qTicket || t.includes(qTicket));
+      });
+
+      renderList(filtered);
+      document.getElementById('pageInfo').textContent = `Page ${data.page || page} of ${totalPages}`;
+      document.getElementById('prevBtn').disabled = (data.page || page) <= 1;
+      document.getElementById('nextBtn').disabled = (data.page || page) >= totalPages;
+    }
+
+    function renderList(items) {
+      const list = document.getElementById('ratingsList');
+      if (!items.length) {
+        list.innerHTML = '<div class="rating-card">No ratings found.</div>';
+        return;
+      }
+      list.innerHTML = items.map(r => {
+        const rating = parseInt(r.Rating) || 0;
+        const stars = '★'.repeat(Math.max(0, Math.min(5, rating))) + '☆'.repeat(Math.max(0, 5 - rating));
+        const date = r.Date || '-';
+        const time = r.Time || '-';
+        const name = r.VisitorName || '-';
+        const email = r.VisitorEmail || '-';
+        return `
+          <div class="rating-card">
+            <div class="rating-top">
+              <strong>${r.Museum || '-'}</strong>
+              <span class="stars">${stars}</span>
+            </div>
+            <div class="meta">
+              <span>Ticket: ${r.TicketID || '-'}</span>
+              <span>${date} ${time}</span>
+              <span>${name}</span>
+              <span>${email}</span>
+            </div>
+            ${r.Review ? `<div class="review">${r.Review}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => { if (page > 1) { page--; fetchRatings(); } });
+    document.getElementById('nextBtn').addEventListener('click', () => { if (page < totalPages) { page++; fetchRatings(); } });
+    document.getElementById('perPage').addEventListener('change', () => { page = 1; fetchRatings(); });
+    document.getElementById('qMuseum').addEventListener('input', () => { fetchRatings(); });
+    document.getElementById('qEmail').addEventListener('input', () => { fetchRatings(); });
+    document.getElementById('qTicket').addEventListener('input', () => { fetchRatings(); });
+
+    fetchRatings();
+  </script>
+</body>
+</html>

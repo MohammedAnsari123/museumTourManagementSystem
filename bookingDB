@@ -1,0 +1,10 @@
+TicketID,Museum,Date,Time,People,TourType,VisitorName,VisitorEmail,VisitorPhone,VisitorAge,SpecialRequests,EmergencyContact,MuseumType,Attended,Rating,Review
+4b8be5b6,Chandigarh Architecture Museum,2025-08-19,12:00,1,guided,Mohammed,mohammed@gmail.com,1234567890,teen,,,Architecture,No,,
+0629941c,Salar Jung Museum,2025-08-18,12:00,1,self-guided,ansari,ansari@mail.com,2316549870,teen,ansari,,Art,No,,
+ad840caa,Bihar Museum,2025-08-23,11:00,3,self-guided,histry,histry@gmail.com,9876541320,teen,histry,,History,Cancelled,,
+61e750f7,Museum of Indian Cinema,2025-08-19,11:00,4,self-guided,film,film@gmail.com,9876546540,teen,hhhhhhhhhhhhhhiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,Film,No,,
+fd775e78,Kerala Spice Museum,2025-08-21,14:00,1,guided,asdfhljfkdhglf,skdjflsj@gskdf.sdkfn,9825628596,teen,snd bcfmsn fsndf bnmdf baksj dakslj ejfb bnmfdbf,7981237140.0,Agriculture,Cancelled,,
+1bb4f1a4,Chandigarh Architecture Museum,2025-08-19,12:00,3,self-guided,ABC,ABC@gmail.com,1234567890,teen,,,Architecture,No,,
+e161fe5a,Chandigarh Architecture Museum,2025-08-21,12:00,3,self-guided,ABC,ABC@gmail.com,1234567890,teen,moshdfjk,,Architecture,No,,
+c58fcaa5,Assam Tea Plantation Museum,2025-08-17,12:00,1,virtual,mohammed,mohammed@gmail.con,1234567890,adult,mohammed,,Agriculture,No,5.0,yeeeeee
+fb3dfabc,National Gallery of Modern Art,2025-11-11,10:00,1,guided,shravani,srane#094@gmail.com,11111111,adult,no,,Modern Art,Cancelled,5.0,

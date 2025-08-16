@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Museum Gallery - PixelPast</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='gallery.css') }}" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <!-- Navigation Header -->
+  <header class="gallery-header">
+    <div class="header-content">
+      <h1><i class="fas fa-museum"></i> Museum Gallery</h1>
+      <p>Explore our curated collection of museums from around the world</p>
+    </div>
+    <nav class="gallery-nav">
+      <a href="{{ url_for('home') }}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+      <a href="{{ url_for('visitor_home') }}" class="nav-link"><i class="fas fa-user"></i> Visitor</a>
+      <a href="{{ url_for('admin_home') }}" class="nav-link"><i class="fas fa-cog"></i> Admin</a>
+      <div class="auth-buttons">
+        <button class="auth-btn login-btn" onclick="window.location.href='{{ url_for('visitor_login') }}'">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+        <button class="auth-btn register-btn" onclick="window.location.href='{{ url_for('visitor_register') }}'">
+          <i class="fas fa-user-plus"></i> Register
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Search and Filter Section -->
+  <section class="search-section">
+    <div class="search-container">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search museums...">
+      </div>
+      <div class="filter-options">
+        <select id="typeFilter">
+          <option value="">All Types</option>
+          <option value="Art">Art</option>
+          <option value="History">History</option>
+          <option value="Science">Science</option>
+          <option value="Natural">Natural</option>
+          <option value="Cultural">Cultural</option>
+        </select>
+        <select id="locationFilter">
+          <option value="">All Locations</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Chennai">Chennai</option>
+        </select>
+        <button id="resetFilters" class="reset-btn">
+          <i class="fas fa-undo"></i> Reset
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section id="gallery" class="gallery-section">
+    <div class="gallery-section-header">
+      <h2><i class="fas fa-images"></i> Featured Museums</h2>
+      <div class="view-options">
+        <button class="view-btn active" data-view="grid">
+          <i class="fas fa-th"></i> Grid
+        </button>
+        <button class="view-btn" data-view="list">
+          <i class="fas fa-list"></i> List
+        </button>
+      </div>
+    </div>
+
+    <div class="museums-container" id="museumsContainer">
+      <!-- Museums will be loaded dynamically -->
+    </div>
+
+    <div class="loading-spinner" id="loadingSpinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading museums...</p>
+    </div>
+  </section>
+
+  <!-- Museum Detail Modal -->
+  <div id="museumModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle"></h3>
+        <span class="close" id="closeModal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="museum-details">
+          <div class="museum-image">
+            <img id="modalImage" src="" alt="Museum">
+          </div>
+          <div class="museum-info">
+            <div class="info-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span id="modalLocation"></span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-tag"></i>
+              <span id="modalType"></span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-calendar"></i>
+              <span id="modalEstablished"></span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-info-circle"></i>
+              <span id="modalDescription"></span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="action-btn book-btn" onclick="bookVisit()">
+            <i class="fas fa-ticket-alt"></i> Book Visit
+          </button>
+          <button class="action-btn share-btn" onclick="shareMuseum()">
+            <i class="fas fa-share"></i> Share
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="gallery-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4><i class="fas fa-museum"></i> PixelPast Museum</h4>
+        <p>Discover the world's most fascinating museums through our virtual platform.</p>
+      </div>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('visitor_home') }}">Visitor Dashboard</a></li>
+          <li><a href="{{ url_for('admin_home') }}">Admin Panel</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <p><i class="fas fa-envelope"></i> info@pixelpast.com</p>
+        <p><i class="fas fa-phone"></i> +91 12345 67890</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 PixelPast Museum. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='gallery.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ML Modules</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}" />
+</head>
+
+<body>
+
+    <header class="admin-header">
+        <h1>ML Modules</h1>
+        <button onclick="window.location.href='{{ url_for('admin_dashboard') }}'">Back</button>
+    </header>
+
+    <main class="dashboard">
+
+        <!-- Recommendation System -->
+        <div class="admin-card">
+            <h2>Recommendation System</h2>
+            <p>AI-powered museum recommendations based on visitor preferences.</p>
+            <button onclick="testRecommendations()">Test Recommendations</button>
+            <div id="recommendationResults"></div>
+        </div>
+
+        <!-- Visitor Prediction -->
+        <div class="admin-card">
+            <h2>Visitor Prediction</h2>
+            <p>Predict visitor numbers based on historical data.</p>
+            <input type="date" id="predictionDate" />
+            <button onclick="predictVisitors()">Predict Visitors</button>
+            <div id="predictionResults"></div>
+        </div>
+
+        <!-- Chatbot Management -->
+        <div class="admin-card">
+            <h2>Chatbot Management</h2>
+            <p>Manage AI chatbot responses and training data.</p>
+            <textarea id="chatbotResponse" placeholder="Add new chatbot response..."></textarea>
+            <button onclick="addChatbotResponse()">Add Response</button>
+            <div id="chatbotResponses"></div>
+        </div>
+
+    </main>
+
+    <script>
+        function testRecommendations() {
+            fetch('/api/personalized')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('recommendationResults');
+                    if (Array.isArray(data) && data.length > 0) {
+                        let html = '<h4>Recommended Museums:</h4><ul>';
+                        data.forEach(museum => {
+                            html += `<li><strong>${museum.Name}</strong> - ${museum.City} (${museum.Type})</li>`;
+                        });
+                        html += '</ul>';
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<p>No recommendations available. Need more visitor data.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('recommendationResults').innerHTML = '<p>Error loading recommendations.</p>';
+                });
+        }
+
+        function predictVisitors() {
+            const date = document.getElementById('predictionDate').value;
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+            
+            // Simulate prediction based on day of week
+            const dayOfWeek = new Date(date).getDay();
+            const predictions = {
+                0: 150, // Sunday
+                1: 100, // Monday
+                2: 120, // Tuesday
+                3: 130, // Wednesday
+                4: 140, // Thursday
+                5: 180, // Friday
+                6: 200  // Saturday
+            };
+            
+            const predictedVisitors = predictions[dayOfWeek] || 120;
+            document.getElementById('predictionResults').innerHTML = 
+                `<h4>Predicted Visitors for ${date}:</h4><p><strong>${predictedVisitors}</strong> visitors</p>`;
+        }
+
+        function addChatbotResponse() {
+            const response = document.getElementById('chatbotResponse').value;
+            if (!response.trim()) {
+                alert('Please enter a response');
+                return;
+            }
+            
+            // Store in localStorage for demo
+            let responses = JSON.parse(localStorage.getItem('chatbotResponses')) || [];
+            responses.push(response);
+            localStorage.setItem('chatbotResponses', JSON.stringify(responses));
+            
+            document.getElementById('chatbotResponse').value = '';
+            displayChatbotResponses();
+        }
+
+        function displayChatbotResponses() {
+            const responses = JSON.parse(localStorage.getItem('chatbotResponses')) || [];
+            const container = document.getElementById('chatbotResponses');
+            
+            if (responses.length === 0) {
+                container.innerHTML = '<p>No responses added yet.</p>';
+                return;
+            }
+            
+            let html = '<h4>Stored Responses:</h4><ul>';
+            responses.forEach((response, index) => {
+                html += `<li>${response} <button onclick="deleteResponse(${index})">Delete</button></li>`;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function deleteResponse(index) {
+            let responses = JSON.parse(localStorage.getItem('chatbotResponses')) || [];
+            responses.splice(index, 1);
+            localStorage.setItem('chatbotResponses', JSON.stringify(responses));
+            displayChatbotResponses();
+        }
+
+        // Load chatbot responses on page load
+        displayChatbotResponses();
+    </script>
+
+</body>
+
+</html>
