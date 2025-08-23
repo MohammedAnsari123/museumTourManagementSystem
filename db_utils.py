@@ -1,4 +1,3 @@
-# demo/db_utils.py
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -12,7 +11,6 @@ def get_db():
     if _client is None:
         try:
             _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-            # Test the connection
             _client.admin.command('ping')
         except Exception as e:
             print(f"Failed to connect to MongoDB: {e}")
@@ -23,19 +21,15 @@ def create_user(username, email, password):
     """Create a new user with hashed password"""
     db = get_db()
     users_collection = db.users
-    
-    # Check if username already exists
+
     if users_collection.find_one({"username": username}):
         return {"success": False, "message": "Username already exists"}
-    
-    # Check if email already exists
+
     if users_collection.find_one({"email": email}):
         return {"success": False, "message": "Email already registered"}
-    
-    # Hash the password
+
     hashed_password = generate_password_hash(password)
-    
-    # Insert new user
+
     user_data = {
         "username": username,
         "email": email,

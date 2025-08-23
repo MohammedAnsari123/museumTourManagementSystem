@@ -5,21 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Ratings</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}" />
-  <style>
-    .ratings-container { max-width: 1100px; margin: 30px auto; padding: 0 16px; }
-    .ratings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .ratings-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    .rating-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fff; }
-    .rating-top { display: flex; align-items: center; justify-content: space-between; }
-    .stars { color: #f59e0b; font-size: 18px; }
-    .meta { color: #6b7280; font-size: 12px; display: flex; gap: 10px; margin-top: 4px; }
-    .review { margin-top: 6px; font-size: 14px; }
-    .pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; margin-top: 16px; }
-    .pager button { padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; cursor: pointer; }
-    .search-row { display: flex; gap: 8px; }
-    .search-row input { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; }
-    @media (min-width: 720px) { .ratings-list { grid-template-columns: 1fr 1fr; } }
-  </style>
 </head>
 <body>
   <header class="admin-header">
@@ -33,15 +18,15 @@
     </div>
   </header>
 
-  <main class="ratings-container">
-    <div class="ratings-header">
-      <div class="search-row">
-        <input id="qMuseum" placeholder="Filter by museum..." />
-        <input id="qEmail" placeholder="Filter by email..." />
-        <input id="qTicket" placeholder="Filter by ticket id..." />
+  <main class="dashboard">
+    <div class="page-header">
+      <div class="toolbar">
+        <input id="qMuseum" class="search" placeholder="Filter by museum..." />
+        <input id="qEmail" class="search" placeholder="Filter by email..." />
+        <input id="qTicket" class="search" placeholder="Filter by ticket id..." />
       </div>
       <div>
-        <select id="perPage">
+        <select id="perPage" class="search" style="min-width:auto;">
           <option value="10">10</option>
           <option value="20">20</option>
           <option value="50">50</option>
@@ -49,11 +34,11 @@
       </div>
     </div>
 
-    <div id="ratingsList" class="ratings-list"></div>
-    <div class="pager">
-      <button id="prevBtn">Prev</button>
+    <div id="ratingsList" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px;"></div>
+    <div class="pagination">
+      <button id="prevBtn" class="btn btn-light">Prev</button>
       <span id="pageInfo"></span>
-      <button id="nextBtn">Next</button>
+      <button id="nextBtn" class="btn btn-light">Next</button>
     </div>
   </main>
 
@@ -89,7 +74,7 @@
     function renderList(items) {
       const list = document.getElementById('ratingsList');
       if (!items.length) {
-        list.innerHTML = '<div class="rating-card">No ratings found.</div>';
+        list.innerHTML = '<div class="admin-card">No ratings found.</div>';
         return;
       }
       list.innerHTML = items.map(r => {
@@ -100,18 +85,18 @@
         const name = r.VisitorName || '-';
         const email = r.VisitorEmail || '-';
         return `
-          <div class="rating-card">
-            <div class="rating-top">
+          <div class="admin-card">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
               <strong>${r.Museum || '-'}</strong>
-              <span class="stars">${stars}</span>
+              <span style="color:#f59e0b; font-size:18px;">${stars}</span>
             </div>
-            <div class="meta">
+            <div style="color:#6b7280; font-size:12px; display:flex; gap:10px; margin-top:4px;">
               <span>Ticket: ${r.TicketID || '-'}</span>
               <span>${date} ${time}</span>
               <span>${name}</span>
               <span>${email}</span>
             </div>
-            ${r.Review ? `<div class="review">${r.Review}</div>` : ''}
+            ${r.Review ? `<div style="margin-top:6px; font-size:14px;">${r.Review}</div>` : ''}
           </div>
         `;
       }).join('');

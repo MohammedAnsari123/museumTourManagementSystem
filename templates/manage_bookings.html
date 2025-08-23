@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}" />
+    <!-- Uses shared utilities from admin_style.css -->
+</head>
+
+<body>
+    <header class="admin-header">
+        <div class="header-content">
+            <h1>Manage Booking</h1>
+            <p>View, filter, and update booking statuses</p>
+        </div>
+        <div class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-link">Dashboard</a>
+            <a href="{{ url_for('admin_logout') }}" class="nav-link">Logout</a>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <div class="page-header">
+            <div class="toolbar">
+                <input id="search" class="search" type="search" placeholder="Search by Ticket, Visitor, Museum..." />
+                <button class="btn btn-light" id="refresh">Refresh</button>
+            </div>
+            <small id="count"></small>
+        </div>
+
+        <div class="table-wrap" style="margin-top: 12px;">
+            <table id="bookingsTable" class="admin-table">
+                <colgroup>
+                    <col span="1" style="width: 120px;" />
+                    <col span="1" style="width: 180px;" />
+                    <col span="1" style="width: 120px;" />
+                    <col span="1" style="width: 110px;" />
+                    <col span="1" style="width: 90px;" />
+                    <col span="1" style="width: 120px;" />
+                    <col span="1" style="width: 160px;" />
+                    <col span="1" style="width: 220px;" />
+                    <col span="1" style="width: 120px;" />
+                    <col span="1" style="width: 160px;" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Museum</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>People</th>
+                        <th>Tour Type</th>
+                        <th>Visitor</th>
+                        <th>Contact</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const tbody = document.querySelector('#bookingsTable tbody');
+        const searchInput = document.getElementById('search');
+        const refreshBtn = document.getElementById('refresh');
+        const countEl = document.getElementById('count');
+
+        let rows = [];
+
+        function statusBadge(value) {
+            const v = (value || '').toString().trim();
+            let cls = 'badge ';
+            if (v === 'Yes') cls += 'badge-yes';
+            else if (v === 'Cancelled') cls += 'badge-cancelled';
+            else cls += 'badge-no';
+            return `<span class="${cls}">${v || 'No'}</span>`;
+        }
+
+        function actionCell(ticketId, current) {
+            const options = ['Yes', 'No', 'Cancelled'];
+            const opts = options.map(o => `<option value="${o}" ${o === current ? 'selected' : ''}>${o}</option>`).join('');
+            return `
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select class="status-select" data-ticket="${ticketId}" style="min-width:120px">${opts}</select>
+          <button class="btn btn-primary" data-update="${ticketId}">Update</button>
+        </div>
+      `;
+        }
+
+        function render(data) {
+            tbody.innerHTML = '';
+            data.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+          <td>${b.TicketID || ''}</td>
+          <td>${b.Museum || ''}</td>
+          <td>${b.Date || ''}</td>
+          <td>${b.Time || ''}</td>
+          <td>${b.People || ''}</td>
+          <td>${b.TourType || ''}</td>
+          <td>${b.VisitorName || ''}</td>
+          <td>${b.VisitorEmail || ''}${b.VisitorPhone ? ' / ' + b.VisitorPhone : ''}</td>
+          <td>${statusBadge(b.Attended)}</td>
+          <td>${actionCell(b.TicketID, b.Attended)}</td>
+        `;
+                tbody.appendChild(tr);
+            });
+            countEl.textContent = `${data.length} booking(s)`;
+        }
+
+        async function load() {
+            try {
+                const res = await fetch('/api/admin/bookings');
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    rows = data;
+                    render(rows);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="10">Failed to load bookings</td></tr>`;
+                }
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="10">Error loading bookings</td></tr>`;
+            }
+        }
+
+        function doFilter() {
+            const q = searchInput.value.toLowerCase();
+            if (!q) { render(rows); return; }
+            const filtered = rows.filter(b => [
+                b.TicketID, b.Museum, b.VisitorName, b.VisitorEmail, b.TourType
+            ].map(x => (x || '').toString().toLowerCase()).some(s => s.includes(q)));
+            render(filtered);
+        }
+
+        tbody.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-update]');
+            if (!btn) return;
+            const id = btn.getAttribute('data-update');
+            const sel = tbody.querySelector(`select[data-ticket="${id}"]`);
+            const status = sel ? sel.value : '';
+            btn.disabled = true; btn.textContent = 'Saving...';
+            try {
+                const res = await fetch(`/api/admin/bookings/${id}/status`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    // update local row
+                    rows = rows.map(r => r.TicketID === id ? { ...r, Attended: status } : r);
+                    doFilter();
+                } else {
+                    alert(data && data.error ? data.error : 'Failed to update');
+                }
+            } catch (err) {
+                alert('Network error while updating');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Update';
+            }
+        });
+
+        searchInput.addEventListener('input', doFilter);
+        refreshBtn.addEventListener('click', load);
+
+        load();
+    </script>
+</body>
+
+</html>

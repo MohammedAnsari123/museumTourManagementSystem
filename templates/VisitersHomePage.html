@@ -56,8 +56,6 @@
     </div>
   </header>
 
-  <button id="toggle-mode" class="theme-toggle">🌙</button>
-
   <!-- Hero Section -->
   <section id="home" class="hero-section">
     <video autoplay muted loop id="bg-video">
@@ -618,7 +616,7 @@
 
       const canvas = document.getElementById('foreignChart');
       if (!canvas) {
-        console.error('Chart canvas not found!');
+        console.log('Chart canvas not found!');
         return;
       }
 
@@ -667,7 +665,7 @@
           console.log('Yearly data received:', data);
 
           if (data.error) {
-            console.error('Error loading yearly data:', data.error);
+            console.log('Error loading yearly data:', data.error);
             return;
           }
 
@@ -679,7 +677,7 @@
           updateSummaryStats(data);
         })
         .catch(error => {
-          console.error('Error loading yearly data:', error);
+          console.log('Error loading yearly data:', error);
         });
     }
 
@@ -689,7 +687,7 @@
         .then(response => response.json())
         .then(data => {
           if (data.error) {
-            console.error('Error loading district data:', data.error);
+            console.log('Error loading district data:', data.error);
             return;
           }
 
@@ -700,7 +698,7 @@
           updateDistrictSummary(data);
         })
         .catch(error => {
-          console.error('Error loading district data:', error);
+          console.log('Error loading district data:', error);
         });
     }
 
@@ -710,7 +708,7 @@
         .then(response => response.json())
         .then(data => {
           if (data.error) {
-            console.error('Error loading monthly data:', data.error);
+            console.log('Error loading monthly data:', data.error);
             return;
           }
 
@@ -721,7 +719,7 @@
           updateMonthlySummary(data);
         })
         .catch(error => {
-          console.error('Error loading monthly data:', error);
+          console.log('Error loading monthly data:', error);
         });
     }
 
@@ -736,7 +734,7 @@
 
       const canvas = document.getElementById('foreignChart');
       if (!canvas) {
-        console.error('Canvas not found in updateChart!');
+        console.log('Canvas not found in updateChart!');
         return;
       }
 
@@ -799,7 +797,7 @@
         foreignChart = new Chart(ctx, config);
         console.log('Chart created successfully:', foreignChart);
       } catch (error) {
-        console.error('Error creating chart:', error);
+        console.log('Error creating chart:', error);
       }
     }
 
@@ -898,7 +896,7 @@
           }
         });
       })
-      .catch(err => console.error("Failed to load museums:", err));
+      .catch(err => console.log("Failed to load museums:", err));
   </script>
 
   <script src="{{ url_for('static', filename='VisitersHomePage.js') }}"></script>

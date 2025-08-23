@@ -24,7 +24,7 @@ class MuseumGallery {
       // Hide loading spinner
       document.getElementById('loadingSpinner').style.display = 'none';
     } catch (error) {
-      console.error('Error loading museums:', error);
+      console.log('Error loading museums:', error);
       this.showError('Failed to load museums. Please try again later.');
     }
   }

@@ -6,3 +6,4 @@ Pillow==10.0.1
 pymongo
 numpy
 google-generativeai
+python-dotenv>=1.0.1

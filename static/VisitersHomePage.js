@@ -235,7 +235,7 @@ document.getElementById("confirm-booking")?.addEventListener("click", () => {
       }
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.log('Error:', error);
       msg.textContent = "Booking failed. Please try again.";
       msg.style.color = "red";
     });
@@ -269,7 +269,7 @@ document.getElementById("attend-btn")?.addEventListener("click", () => {
       msg.style.color = "green";
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.log('Error:', error);
       msg.textContent = "Failed to mark attendance. Please try again.";
       msg.style.color = "red";
     });
@@ -298,7 +298,7 @@ document.getElementById("submit-review")?.addEventListener("click", () => {
     })
     .then(() => alert("Thanks for your review!"))
     .catch(error => {
-      console.error('Error:', error);
+      console.log('Error:', error);
       alert("Failed to submit review. Please try again.");
     });
 });
@@ -510,7 +510,7 @@ function submitReview(e) {
     loadMyRatings();
   })
   .catch(error => {
-    console.error('Error:', error);
+    console.log('Error:', error);
     alert('Failed to submit review. Please try again.');
   });
 }
@@ -533,7 +533,7 @@ function cancelBooking(ticketId) {
     loadHistory();
   })
   .catch(err => {
-    console.error(err);
+    console.log(err);
     alert('Failed to cancel booking. Please try again.');
   });
 }
@@ -590,7 +590,7 @@ function loadPopular() {
       container.innerHTML = html;
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.log('Error:', error);
       const container = document.getElementById("popular-container");
       container.innerHTML = "<p>Error loading popular data. Please try again later.</p>";
     });
@@ -619,7 +619,7 @@ function loadPersonalized() {
       container.innerHTML = html;
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.log('Error:', error);
       const container = document.getElementById("personalized-container");
       container.innerHTML = "<p>Error loading recommendations. Please try again later.</p>";
     });
@@ -653,7 +653,7 @@ class MuseumBookingSystem {
       this.filteredMuseums = [...this.museums];
       console.log(`Loaded ${this.museums.length} museums`);
     } catch (error) {
-      console.error('Error loading museums:', error);
+      console.log('Error loading museums:', error);
       this.showError('Failed to load museums. Please try again later.');
     }
   }
@@ -666,7 +666,7 @@ class MuseumBookingSystem {
       const filters = await response.json();
       this.populateFilterDropdowns(filters);
     } catch (error) {
-      console.error('Error loading filters:', error);
+      console.log('Error loading filters:', error);
       // Fallback to static filters if API fails
     }
   }
@@ -1038,7 +1038,7 @@ class MuseumBookingSystem {
       }
       
     } catch (error) {
-      console.error('Booking error:', error);
+      console.log('Booking error:', error);
       this.showMessage('Booking failed. Please try again.', 'error');
     }
   }

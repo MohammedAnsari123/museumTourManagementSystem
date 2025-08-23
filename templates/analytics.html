@@ -14,9 +14,9 @@
     <header class="admin-header">
         <div>
             <h1>View Analytics</h1>
-            <p style="margin: 4px 0 0 0; color:#fff; opacity:0.9; font-weight:500;">Monitor visitor statistics and trends</p>
+            <p class="section-subtitle" style="color:#fff; opacity:0.9;">Monitor visitor statistics and trends</p>
         </div>
-        <button onclick="window.location.href='{{ url_for('admin_dashboard') }}'">Back</button>
+        <button class="btn btn-light" onclick="window.location.href='{{ url_for('admin_dashboard') }}'">Back</button>
     </header>
 
     <main class="dashboard">
@@ -35,27 +35,27 @@
         <!-- Charts -->
         <div class="admin-card">
             <h2>Visitor Trends</h2>
-            <p style="margin-top:-10px; color:#555;">Track total vs attended bookings overview</p>
+            <p class="section-subtitle">Track total vs attended bookings overview</p>
             <canvas id="visitorChart" width="400" height="200"></canvas>
         </div>
 
         <div class="admin-card">
             <h2>Museum Types Distribution</h2>
-            <p style="margin-top:-10px; color:#555;">Breakdown of museums by type</p>
+            <p class="section-subtitle">Breakdown of museums by type</p>
             <canvas id="museumTypeChart" width="400" height="200"></canvas>
         </div>
 
         <!-- Foreign Visitors Chart -->
         <div class="admin-card">
             <h2>Foreign Visitors by Year</h2>
-            <p style="margin-top:-10px; color:#555;">Yearly trend of foreign visitors (from foreign.csv)</p>
+            <p class="section-subtitle">Yearly trend of foreign visitors (from foreign.csv)</p>
             <canvas id="foreignVisitorsChart" width="400" height="200"></canvas>
         </div>
 
         <!-- Foreign Visitors by District -->
         <div class="admin-card">
             <h2>Foreign Visitors by District (Top 10)</h2>
-            <p style="margin-top:-10px; color:#555;">Top districts by total foreign visitors</p>
+            <p class="section-subtitle">Top districts by total foreign visitors</p>
             <canvas id="districtChart" width="400" height="200"></canvas>
         </div>
 
@@ -72,7 +72,7 @@
                 createMuseumTypeChart(data.museum_stats);
             })
             .catch(error => {
-                console.error('Error loading analytics:', error);
+                console.log('Error loading analytics:', error);
             });
 
         // Load foreign visitors data
@@ -82,7 +82,7 @@
                 createForeignVisitorsChart(data);
             })
             .catch(error => {
-                console.error('Error loading foreign visitors data:', error);
+                console.log('Error loading foreign visitors data:', error);
             });
 
         // Load district-wise foreign visitors data
@@ -92,7 +92,7 @@
                 createDistrictChart(data);
             })
             .catch(error => {
-                console.error('Error loading district data:', error);
+                console.log('Error loading district data:', error);
             });
 
         function displayBookingStats(stats) {

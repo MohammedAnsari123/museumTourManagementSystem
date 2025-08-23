@@ -1,4 +1,3 @@
-# demo/ml_recommendations.py
 import random
 from math import radians, sin, cos, sqrt, atan2
 import pandas as pd
@@ -31,7 +30,6 @@ def personalized_suggestions(interests, top_n=8):
     if df.empty:
         return []
 
-    # Build text corpus from available fields
     text = (df.get("Category").fillna("")
             if "Category" in df else pd.Series([""]*len(df)))
     if "Type" in df:
@@ -65,7 +63,7 @@ def popular_exhibits(top_n=8):
         df["Visitors"] = pd.to_numeric(df["Visitors"], errors="coerce").fillna(0)
         df = df.sort_values("Visitors", ascending=True if df["Visitors"].max()==0 else False)
     else:
-        df = df.sample(frac=1, random_state=42)  # shuffle
+        df = df.sample(frac=1, random_state=42)
     cols = [c for c in ["Name","City","State","Category","Type","Latitude","Longitude","Visitors"] if c in df.columns]
     return df.head(top_n)[cols].to_dict(orient="records")
 

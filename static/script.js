@@ -404,7 +404,7 @@ function loadMuseumList() {
             museumList.innerHTML = html;
         })
         .catch(error => {
-            console.error('Error loading personalized recommendations:', error);
+            console.log('Error loading personalized recommendations:', error);
             if (museumList) {
                 museumList.innerHTML = '<p>Error loading recommendations. Please try again later.</p>';
             }

@@ -43,7 +43,7 @@ body {
 }
 
 .nav-link:hover {
-  color: #9BD3C4;
+  color: #ffffff;
 }
 
 .auth-buttons {
@@ -81,9 +81,9 @@ body {
 }
 
 .login-btn:hover {
-  background: #9BD3C4;
-  color: black;
-  transform: translateY(-2px);
+  background: transparent;
+  color: white;
+  transform: none;
 }
 
 .logout-btn {
@@ -92,8 +92,8 @@ body {
 }
 
 .logout-btn:hover {
-  background: #ff5252;
-  transform: translateY(-2px);
+  background: #ff6b6b;
+  transform: none;
 }
 
 .dashboard {
@@ -148,9 +148,9 @@ body {
 }
 
 .admin-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 1);
+  transform: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .card-icon {
@@ -192,64 +192,60 @@ body {
 }
 
 .admin-header button:hover {
-  background: #6fb7a6;
-  transform: translateY(-2px);
+  background: #9BD3C4;
+  transform: none;
 }
 
 /* Form Styles */
-form.admin-card {
-  text-align: left;
-  cursor: default;
+.admin-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-form.admin-card h2 {
-  color: #000000;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-form.admin-card input,
-form.admin-card textarea {
-  width: 100%;
-  padding: 0.75rem;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   margin-bottom: 1rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  background: #ffffff;
-  color: #000000;
-  transition: border-color 0.3s ease;
 }
 
-form.admin-card input:focus,
-form.admin-card textarea:focus {
-  outline: none;
-  border-color: #9BD3C4;
-}
-
-form.admin-card textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-form.admin-card button {
-  background: #9BD3C4;
-  color: #000000;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
+.form-group label {
   font-weight: 600;
-  transition: all 0.3s ease;
-  width: 100%;
-  font-size: 1rem;
+  color: #111827;
 }
 
-form.admin-card button:hover {
-  background: #6fb7a6;
-  transform: translateY(-2px);
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  min-height: 44px;
+  border: 1px solid #cbd5e1;
+  /* slate-300 */
+  border-radius: 10px;
+  font-size: 16px;
+  line-height: 1.4;
+  background: #ffffff;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #9ca3af;
+  /* gray-400 */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #9BD3C4;
+  outline: none;
+}
+
+input[type="password"] {
+  letter-spacing: 0.03em;
 }
 
 /* List Styles */
@@ -298,8 +294,8 @@ form.admin-card button:hover {
 }
 
 .admin-card li button:hover {
-  background: #6fb7a6;
-  transform: translateY(-2px);
+  background: #9BD3C4;
+  transform: none;
 }
 
 .admin-card li button:last-child {
@@ -308,7 +304,7 @@ form.admin-card button:hover {
 }
 
 .admin-card li button:last-child:hover {
-  background: #ff5252;
+  background: #ff6b6b;
 }
 
 /* Analytics Page Styles */
@@ -361,7 +357,8 @@ form.admin-card button:hover {
   background: #9BD3C4;
 }
 
-.admin-table th, .admin-table td {
+.admin-table th,
+.admin-table td {
   padding: 0.75rem 1rem;
   text-align: left;
   color: #000000;
@@ -372,7 +369,7 @@ form.admin-card button:hover {
 }
 
 .admin-table tbody tr:hover {
-  background: #eef7f4;
+  background: inherit;
 }
 
 /* Chart Container Styles */
@@ -390,36 +387,391 @@ form.admin-card button:hover {
     gap: 1rem;
     text-align: center;
   }
-  
+
   .admin-nav {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .auth-buttons {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .admin-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .dashboard {
     padding: 2rem 1rem;
   }
-  
+
   .admin-card li {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .admin-card li button {
     width: 100%;
   }
-  
+
   .admin-card canvas {
     max-width: 100%;
     height: auto;
   }
+}
+
+/* ============================= */
+/* Shared Admin UI Utilities     */
+/* ============================= */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s ease;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  transform: none;
+}
+
+.btn-light {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+.btn-light:hover {
+  background: #f3f4f6;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+.btn-ghost:hover {
+  background: transparent;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #ef4444;
+}
+
+/* Page header + toolbar */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 16px 0;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  min-width: 260px;
+  background: #fff;
+}
+
+/* Table wrapper */
+.table-wrap {
+  overflow: auto;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Badges */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-yes {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.badge-no {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.badge-cancelled {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* Section subtitle */
+.section-subtitle {
+  margin-top: -10px;
+  color: #555;
+  font-weight: 500;
+}
+
+/* Chips (filters) */
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #111827;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.pagination .btn {
+  padding: 0.4rem 0.7rem;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  width: min(640px, 94vw);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, .2);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #eef2f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 1rem 1.25rem;
+}
+
+.modal-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #eef2f7;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-backdrop.show {
+  display: flex;
+}
+
+
+
+
+
+
+
+/* Legacy form compatibility: direct inputs inside admin-card (e.g., manage_exhibits) */
+.admin-card>input,
+.admin-card>select,
+.admin-card>textarea {
+  width: 100%;
+  padding: 12px 14px;
+  min-height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 16px;
+  line-height: 1.4;
+  background: #ffffff;
+  color: #111827;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  /* spacing between stacked fields */
+}
+
+.admin-card>input::placeholder,
+.admin-card>textarea::placeholder {
+  color: #9ca3af;
+}
+
+.admin-card>input:focus,
+.admin-card>select:focus,
+.admin-card>textarea:focus {
+  border-color: #9BD3C4;
+  outline: none;
+}
+
+/* Make the Add Museum form breathe a bit */
+#addMuseumForm {
+  display: grid;
+  gap: 10px;
+}
+
+#addMuseumForm button[type="submit"] {
+  justify-self: start;
+  /* avoid full-width if not desired */
+}
+
+/* Simple form grid utilities (static) */
+.form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.full-span {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Map box refinement */
+#m_map {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+/* Form field base styles */
+.admin-card label {
+  display: block;
+  font-size: 0.9rem;
+  color: #374151;
+  /* gray-700 */
+  margin-bottom: 6px;
+}
+
+.admin-card input,
+.admin-card select,
+.admin-card textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  /* gray-200 */
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  /* gray-900 */
+  line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-card input::placeholder,
+.admin-card textarea::placeholder {
+  color: #9ca3af;
+  /* gray-400 */
+}
+
+.admin-card input:focus,
+.admin-card select:focus,
+.admin-card textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  /* primary-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.admin-card input:disabled,
+.admin-card select:disabled,
+.admin-card textarea:disabled {
+  background: #f9fafb;
+  /* gray-50 */
+  color: #6b7280;
+  /* gray-500 */
+  cursor: not-allowed;
+}
+
+/* Ensure vertical rhythm inside grid */
+.admin-card .form-grid>div {
+  min-width: 0;
+  /* prevent overflow in grid cells */
+}
+
+/* Number input spinner cleanup */
+.admin-card input[type="number"]::-webkit-outer-spin-button,
+.admin-card input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.admin-card input[type="number"] {
+  -moz-appearance: textfield;
+  /* Firefox */
+}
+
+/* Compact helper text style (optional utility) */
+.section-subtitle {
+  margin-top: -4px;
+  margin-bottom: 8px;
+  color: #6b7280;
+  /* gray-500 */
+  font-size: 0.9rem;
 }

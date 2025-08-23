@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manage Museums</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 
 <body>
 
     <header class="admin-header">
         <h1>Manage Museums</h1>
-        <a href="{{ url_for('admin_dashboard') }}" class="btn-back">Back</a>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light">Back</a>
     </header>
 
     <main class="dashboard">
@@ -20,12 +22,57 @@
         <!-- Add Museum Form -->
         <form id="addMuseumForm" class="admin-card">
             <h2>Add Museum</h2>
-            <input type="text" id="m_name" placeholder="Name" required />
-            <input type="text" id="m_city" placeholder="City" required />
-            <input type="text" id="m_state" placeholder="State" />
-            <input type="text" id="m_type" placeholder="Type" />
-            <input type="text" id="m_est" placeholder="Established (e.g., 1950)" />
-            <button type="submit">Add Museum</button>
+            <p class="section-subtitle">Enter museum details below. Latitude/Longitude can be filled by clicking on the
+                map.</p>
+            <div class="form-grid grid-2">
+                <div class="full-span">
+                    <label for="m_name">Name</label>
+                    <input type="text" id="m_name" placeholder="e.g., National Museum" required />
+                </div>
+                <div>
+                    <label for="m_city">City</label>
+                    <input type="text" id="m_city" placeholder="e.g., Delhi" required />
+                </div>
+                <div>
+                    <label for="m_state">State</label>
+                    <input type="text" id="m_state" placeholder="e.g., Delhi" />
+                </div>
+                <div>
+                    <label for="m_type">Type</label>
+                    <select id="m_type">
+                        <option value="" disabled selected>Select type</option>
+                        <option>Art</option>
+                        <option>History</option>
+                        <option>Science</option>
+                        <option>Natural History</option>
+                        <option>Technology</option>
+                        <option>Children's</option>
+                        <option>Archaeology</option>
+                        <option>Culture</option>
+                        <option>Military</option>
+                        <option>Transportation</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="m_est">Established</label>
+                    <input type="text" id="m_est" placeholder="e.g., 1950" />
+                </div>
+                <div>
+                    <label for="m_lat">Latitude</label>
+                    <input type="number" step="any" id="m_lat" placeholder="Click on map to fill" />
+                </div>
+                <div>
+                    <label for="m_lon">Longitude</label>
+                    <input type="number" step="any" id="m_lon" placeholder="Click on map to fill" />
+                </div>
+                <div class="full-span">
+                    <div id="m_map" style="height:320px;"></div>
+                </div>
+                <div class="full-span">
+                    <button type="submit" class="btn btn-primary">Add Museum</button>
+                </div>
+            </div>
         </form>
 
         <!-- Museums List -->
@@ -33,14 +80,55 @@
             <h2>Museums</h2>
             <div id="museumError" style="color:#b00020;margin-bottom:8px;"></div>
             <ul id="museumList"></ul>
-            <div id="museumPager" style="margin-top:12px; display:flex; gap:6px; flex-wrap:wrap;"></div>
+            <div id="museumPager" class="pagination"></div>
         </div>
 
     </main>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         // Pagination state
         const adminMuseumsState = { page: 1, per_page: 10, total_pages: 1, total: 0, items: [] };
+
+        // Map + Lat/Lon sync
+        const latInput = document.getElementById('m_lat');
+        const lonInput = document.getElementById('m_lon');
+        const map = L.map('m_map').setView([20.5937, 78.9629], 5); // India default
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        let marker = null;
+        function setMarker(lat, lon) {
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+            if (marker) {
+                marker.setLatLng([lat, lon]);
+            } else {
+                marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+                marker.on('dragend', (e) => {
+                    const { lat, lng } = e.target.getLatLng();
+                    latInput.value = lat.toFixed(6);
+                    lonInput.value = lng.toFixed(6);
+                });
+            }
+        }
+        map.on('click', (e) => {
+            const { lat, lng } = e.latlng;
+            latInput.value = lat.toFixed(6);
+            lonInput.value = lng.toFixed(6);
+            setMarker(lat, lng);
+        });
+        latInput.addEventListener('change', () => {
+            const lat = parseFloat(latInput.value);
+            const lon = parseFloat(lonInput.value);
+            if (Number.isFinite(lat) && Number.isFinite(lon)) setMarker(lat, lon);
+        });
+        lonInput.addEventListener('change', () => {
+            const lat = parseFloat(latInput.value);
+            const lon = parseFloat(lonInput.value);
+            if (Number.isFinite(lat) && Number.isFinite(lon)) setMarker(lat, lon);
+        });
 
         async function fetchMuseums(page = 1) {
             const list = document.getElementById('museumList');
@@ -82,8 +170,8 @@
                 const label = `${m.Name || ''} - ${m.Type || ''} (${m.City || ''}${m.State ? ', ' + m.State : ''}) ${m.Established ? '• Est. ' + m.Established : ''}`;
                 li.innerHTML = `
                     <strong>${label}</strong>
-                    <button onclick="onEditMuseum('${m.id}')">Edit</button>
-                    <button onclick="onDeleteMuseum('${m.id}')">Delete</button>
+                    <button class="btn btn-ghost" onclick="onEditMuseum('${m.id}')">Edit</button>
+                    <button class="btn btn-danger" onclick="onDeleteMuseum('${m.id}')">Delete</button>
                 `;
                 list.appendChild(li);
             });
@@ -98,6 +186,7 @@
                 b.textContent = label;
                 b.disabled = disabled;
                 if (active) b.classList.add('active');
+                b.className = 'btn btn-light';
                 b.addEventListener('click', () => fetchMuseums(p));
                 return b;
             };
@@ -136,6 +225,12 @@
                 Type: document.getElementById('m_type').value,
                 Established: document.getElementById('m_est').value,
             };
+            const latV = parseFloat(latInput.value);
+            const lonV = parseFloat(lonInput.value);
+            if (Number.isFinite(latV) && Number.isFinite(lonV)) {
+                payload.Latitude = latV;
+                payload.Longitude = lonV;
+            }
             try {
                 const res = await fetch('/api/admin/museums', {
                     method: 'POST',
@@ -147,6 +242,7 @@
                 // Refresh current page to reflect changes
                 fetchMuseums(1);
                 e.target.reset();
+                if (marker) { marker.remove(); marker = null; }
             } catch (err) {
                 document.getElementById('museumError').textContent = err.message || 'Error creating museum';
             }
@@ -172,11 +268,20 @@
             const State = prompt('State:', m.State || '') || '';
             const Type = prompt('Type:', m.Type || '') || '';
             const Established = prompt('Established:', m.Established || '') || '';
+            const LatStr = prompt('Latitude (decimal):', (m.Latitude ?? '').toString()) || '';
+            const LonStr = prompt('Longitude (decimal):', (m.Longitude ?? '').toString()) || '';
+            const payload = { Name, City, State, Type, Established };
+            const latNum = parseFloat(LatStr);
+            const lonNum = parseFloat(LonStr);
+            if (Number.isFinite(latNum) && Number.isFinite(lonNum)) {
+                payload.Latitude = latNum;
+                payload.Longitude = lonNum;
+            }
             try {
                 const res = await fetch(`/api/admin/museums/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Name, City, State, Type, Established })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Failed to update');
