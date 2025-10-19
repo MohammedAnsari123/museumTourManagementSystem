@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify, send_file, session, 
 import pandas as pd
 import os
 import csv
-from collections import Counter
 from datetime import datetime
 import qrcode
 import uuid
@@ -190,8 +189,8 @@ def recommendations():
     lon = payload.get("lon", None)
     radius_km = float(payload.get("radius_km", 25))
 
-    personalized = personalized_suggestions(interests, top_n=8)
-    popular = popular_exhibits(top_n=8)
+    personalized = personalized_suggestions(interests, top_n=10)
+    popular = popular_exhibits(top_n=10)
     nearby = nearby_museums(float(lat), float(lon), radius_km=radius_km, top_n=12) if lat is not None and lon is not None else []
 
     return jsonify({
@@ -1441,25 +1440,6 @@ def delete_museum(mid):
             return jsonify({"message": "Deleted"})
         except Exception as e2:
             return jsonify({"error": str(e2)}), 500
-
-@app.route('/api/debug/museums')
-def debug_museums():
-    mongodb_count = 0
-    mongodb_error = None
-    try:
-        db = get_db()
-        museums_col = db.museums
-        mongodb_count = museums_col.count_documents({})
-    except Exception as e:
-        mongodb_error = str(e)
-    
-    return jsonify({
-        "museum_df_empty": museum_df.empty,
-        "museum_df_length": len(museum_df) if not museum_df.empty else 0,
-        "mongodb_available": mongodb_error is None,
-        "mongodb_museums_count": mongodb_count,
-        "mongodb_error": mongodb_error
-    })
 
 if __name__ == '__main__':
     app.run(debug=True)

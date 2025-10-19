@@ -162,7 +162,7 @@
     </div>
   </section>
 
-  <section>
+  <!-- <section>
     <div class="containers">
       <h2>Museum Recommendation</h2>
       <input type="text" id="searchInput" placeholder="Enter museum name, city or type" style="color: black;">
@@ -170,7 +170,7 @@
 
       <div id="result"></div>
     </div>
-  </section>
+  </section> -->
 
   <!-- Booking Section -->
   <section id="booking" class="section">
@@ -183,7 +183,8 @@
         <div class="search-container">
           <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="museumSearchInput" placeholder="Search museums by name, city, or type...">
+            <input type="text" id="museumSearchInput" placeholder="Search museums by name, city, or type..."
+              style="color: black;">
           </div>
           <div class="search-filters">
             <select id="typeFilter">
@@ -427,17 +428,6 @@
     </div>
   </section>
 
-  <!-- Popular Exhibits Section -->
-  <section id="popular" class="section">
-    <div class="container">
-      <h2><i class="fas fa-fire"></i> Popular Exhibits</h2>
-      <div class="exhibits-container" id="popular-container">
-        <!-- Popular exhibits will be loaded dynamically -->
-      </div>
-      <div class="pagination" id="exhibits-nav"></div>
-    </div>
-  </section>
-
   <!-- Exhibitions Section -->
   <section id="exhibitions" class="section">
     <div class="container">
@@ -448,6 +438,15 @@
       <div class="pagination" id="exhibits-nav"></div>
     </div>
   </section>
+
+  <!-- Popular Exhibits Section -->
+  <!-- <section id="popular" class="section">
+    <div class="container">
+      <h2><i class="fas fa-fire"></i> Popular Exhibits</h2>
+      <div class="exhibits-container" id="popular-container"></div>
+      <div class="pagination" id="exhibits-nav"></div>
+    </div>
+  </section> -->
 
   <!-- AI Recommendations Section -->
   <section id="recommendations" class="section">
@@ -525,10 +524,10 @@
       </section>
 
       <!-- Popular -->
-      <section class="card" style="background-color: #F3F3F3; ">
+      <!-- <section class="card" style="background-color: #F3F3F3; ">
         <h2>Popular Exhibits</h2>
         <div id="popularResults" class="grid" style="color: black;"></div>
-      </section>
+      </section> -->
 
       <!-- Nearby -->
       <section class="card" style="background-color: #F3F3F3;">
@@ -538,7 +537,7 @@
           <span class="muted">km</span>
           <button id="btnNearby">Use My Location</button>
         </div>
-      
+
         <!-- Exhibition Modal -->
         <div id="exhibitModal" class="modal">
           <div class="modal-content">
@@ -549,17 +548,17 @@
         <div id="nearbyResults" class="grid"></div>
       </section>
 
-    
-        </div>
-      </div>
-    
-      <!-- Exhibition Modal -->
-      <div id="exhibitModal" class="modal">
-        <div class="modal-content">
-          <span id="closeModal" class="close">&times;</span>
-          <div id="modalContent"></div>
-        </div>
-      </div>
+
+    </div>
+  </div>
+
+  <!-- Exhibition Modal -->
+  <div id="exhibitModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <div id="modalContent"></div>
+    </div>
+  </div>
 
   <!-- Foreign Visitors Analytics Section -->
   <section id="foreign-visitors" class="section">
